@@ -139,3 +139,7 @@ management:
 zipkin:
   tracing:
     endpoint: http://localhost:9411/api/v2/spans
+# ================= JWT =================
+
+jwt:
+  secret: mySuperSecretKey1234567890
