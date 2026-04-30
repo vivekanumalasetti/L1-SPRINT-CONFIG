@@ -1,115 +1,115 @@
 spring:
   application:
     name: api-gateway
-
   cloud:
     gateway:
+      globalcors:
+          cors-configurations:
+            '[/**]':
+              allowedOrigins:
+                - "http://localhost:3000"
+                - "http://localhost:4200"
+              allowedMethods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+                - OPTIONS
+              allowedHeaders: "*"
+              exposedHeaders:
+                - "Authorization"
+              allowCredentials: true
+      
+      routes:
+          #--------swagger------------
+        - id: auth-docs
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/v3/api-docs/**
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /${segment}
+
+        - id: user-docs
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users/v3/api-docs/**
+          filters:
+            - RewritePath=/users/(?<segment>.*), /${segment}
+              
+        - id: startup-docs
+          uri: lb://STARTUP-SERVICE
+          predicates:
+            - Path=/startups/v3/api-docs/**
+          filters:
+            - RewritePath=/startups/(?<segment>.*), /${segment}
+              
+        - id: investment-docs
+          uri: lb://INVESTMENT-SERVICE
+          predicates:
+            - Path=/investments/v3/api-docs/**
+          filters:
+            - RewritePath=/investments/(?<segment>.*), /${segment}
+
+        - id: team-docs
+          uri: lb://TEAM-SERVICE
+          predicates:
+            - Path=/teams/v3/api-docs/**
+          filters:
+            - RewritePath=/teams/(?<segment>.*), /${segment}
+              
+        - id: notification-docs
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/notifications/v3/api-docs/**
+          filters:
+            - RewritePath=/notifications/(?<segment>.*), /${segment}
+            
+
+        - id: auth-service-auth
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+        - id: auth-service-test
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/test/**
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users/**
+        - id: startup-service
+          uri: lb://STARTUP-SERVICE
+          predicates:
+            - Path=/startups/**
+        - id: investment-service
+          uri: lb://INVESTMENT-SERVICE
+          predicates:
+            - Path=/investments/**
+        - id: team-service
+          uri: lb://TEAM-SERVICE
+          predicates:
+            - Path=/teams/**
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/notifications/**
+
       server:
         webflux:
-          routes:
+          forwarded:
+            enabled: true
 
-            # ================= NORMAL ROUTES =================
-
-            - id: auth-service
-              uri: lb://AUTH-SERVICE
-              predicates:
-                - Path=/auth/**
-
-            - id: user-service
-              uri: lb://USER-SERVICE
-              predicates:
-                - Path=/users/**
-
-            - id: startup-service
-              uri: lb://STARTUP-SERVICE
-              predicates:
-                - Path=/startups/**
-
-            - id: investment-service
-              uri: lb://INVESTMENT-SERVICE
-              predicates:
-                - Path=/investments/**
-
-            - id: team-service
-              uri: lb://TEAM-SERVICE
-              predicates:
-                - Path=/teams/**
-
-
-            # ================= SWAGGER DOC ROUTES =================
-
-            - id: auth-docs
-              uri: lb://AUTH-SERVICE
-              predicates:
-                - Path=/v3/api-docs/auth
-              filters:
-                - RewritePath=/v3/api-docs/auth, /v3/api-docs
-
-            - id: user-docs
-              uri: lb://USER-SERVICE
-              predicates:
-                - Path=/v3/api-docs/user
-              filters:
-                - RewritePath=/v3/api-docs/user, /v3/api-docs
-
-            - id: startup-docs
-              uri: lb://STARTUP-SERVICE
-              predicates:
-                - Path=/v3/api-docs/startup
-              filters:
-                - RewritePath=/v3/api-docs/startup, /v3/api-docs
-
-            - id: investment-docs
-              uri: lb://INVESTMENT-SERVICE
-              predicates:
-                - Path=/v3/api-docs/investment
-              filters:
-                - RewritePath=/v3/api-docs/investment, /v3/api-docs
-
-            - id: team-docs
-              uri: lb://TEAM-SERVICE
-              predicates:
-                - Path=/v3/api-docs/team
-              filters:
-                - RewritePath=/v3/api-docs/team, /v3/api-docs
-
-
-# ================= SWAGGER UI =================
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    urls:
-      - name: auth-service
-        url: /v3/api-docs/auth
-      - name: user-service
-        url: /v3/api-docs/user
-      - name: startup-service
-        url: /v3/api-docs/startup
-      - name: investment-service
-        url: /v3/api-docs/investment
-      - name: team-service
-        url: /v3/api-docs/team
-
-
-# ================= SERVER =================
+            
+              
 
 server:
-  port: 8080
-
-
-# ================= EUREKA =================
+  port: 8085
+  forward-headers-strategy: framework
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
-  instance:
-    prefer-ip-address: true
-    hostname: localhost
-
-
-# ================= RESILIENCE =================
 
 resilience4j:
   circuitbreaker:
@@ -119,10 +119,6 @@ resilience4j:
         minimum-number-of-calls: 5
         wait-duration-in-open-state: 10s
         sliding-window-size: 10
-
-
-# ================= ACTUATOR =================
-
 management:
   endpoints:
     web:
@@ -133,13 +129,23 @@ management:
     sampling:
       probability: 1.0
 
-
-# ================= ZIPKIN =================
-
 zipkin:
   tracing:
     endpoint: http://localhost:9411/api/v2/spans
-# ================= JWT =================
 
-jwt:
-  secret: mySuperSecretKey1234567890
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: AUTH-SERVICE
+        url: /auth/v3/api-docs
+      - name: USER-SERVICE
+        url: /users/v3/api-docs
+      - name: STARTUP-SERVICE
+        url: /startups/v3/api-docs
+      - name: INVESTMENT-SERVICE
+        url: /investments/v3/api-docs
+      - name: TEAM-SERVICE
+        url: /teams/v3/api-docs
+      - name: NOTIFICATION-SERVICE
+        url: /notifications/v3/api-docs
