@@ -28,7 +28,7 @@ spring:
       enabled: false
 
     gateway:
-      url: http://172.21.232.11:8085
+      url: http://172.21.232.11:8080
 
   mail:
     host: smtp.gmail.com
