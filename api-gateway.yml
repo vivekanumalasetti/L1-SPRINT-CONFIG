@@ -103,7 +103,7 @@ spring:
               
 
 server:
-  port: 8085
+  port: 8080
   forward-headers-strategy: framework
 
 eureka:
