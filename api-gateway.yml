@@ -1,115 +1,127 @@
 spring:
   application:
     name: api-gateway
+
   cloud:
     gateway:
-      globalcors:
-          cors-configurations:
-            '[/**]':
-              allowedOrigins:
-                - "http://localhost:3000"
-                - "http://localhost:4200"
-              allowedMethods:
-                - GET
-                - POST
-                - PUT
-                - DELETE
-                - OPTIONS
-              allowedHeaders: "*"
-              exposedHeaders:
-                - "Authorization"
-              allowCredentials: true
-      
-      routes:
-          #--------swagger------------
-        - id: auth-docs
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/auth/v3/api-docs/**
-          filters:
-            - RewritePath=/auth/(?<segment>.*), /${segment}
-
-        - id: user-docs
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/users/v3/api-docs/**
-          filters:
-            - RewritePath=/users/(?<segment>.*), /${segment}
-              
-        - id: startup-docs
-          uri: lb://STARTUP-SERVICE
-          predicates:
-            - Path=/startups/v3/api-docs/**
-          filters:
-            - RewritePath=/startups/(?<segment>.*), /${segment}
-              
-        - id: investment-docs
-          uri: lb://INVESTMENT-SERVICE
-          predicates:
-            - Path=/investments/v3/api-docs/**
-          filters:
-            - RewritePath=/investments/(?<segment>.*), /${segment}
-
-        - id: team-docs
-          uri: lb://TEAM-SERVICE
-          predicates:
-            - Path=/teams/v3/api-docs/**
-          filters:
-            - RewritePath=/teams/(?<segment>.*), /${segment}
-              
-        - id: notification-docs
-          uri: lb://NOTIFICATION-SERVICE
-          predicates:
-            - Path=/notifications/v3/api-docs/**
-          filters:
-            - RewritePath=/notifications/(?<segment>.*), /${segment}
-            
-
-        - id: auth-service-auth
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/auth/**
-        - id: auth-service-test
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/test/**
-        - id: user-service
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/users/**
-        - id: startup-service
-          uri: lb://STARTUP-SERVICE
-          predicates:
-            - Path=/startups/**
-        - id: investment-service
-          uri: lb://INVESTMENT-SERVICE
-          predicates:
-            - Path=/investments/**
-        - id: team-service
-          uri: lb://TEAM-SERVICE
-          predicates:
-            - Path=/teams/**
-        - id: notification-service
-          uri: lb://NOTIFICATION-SERVICE
-          predicates:
-            - Path=/notifications/**
-
       server:
         webflux:
+
+          # ✅ CORS CONFIG (UPDATED)
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - "http://localhost:3000"
+                  - "http://localhost:4200"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                exposedHeaders:
+                  - "Authorization"
+                allowCredentials: true
+
+          # ✅ ROUTES (UPDATED PATH)
+          routes:
+
+            # -------- SWAGGER ROUTES --------
+            - id: auth-docs
+              uri: lb://AUTH-SERVICE
+              predicates:
+                - Path=/auth/v3/api-docs/**
+              filters:
+                - RewritePath=/auth/(?<segment>.*), /${segment}
+
+            - id: user-docs
+              uri: lb://USER-SERVICE
+              predicates:
+                - Path=/users/v3/api-docs/**
+              filters:
+                - RewritePath=/users/(?<segment>.*), /${segment}
+
+            - id: startup-docs
+              uri: lb://STARTUP-SERVICE
+              predicates:
+                - Path=/startups/v3/api-docs/**
+              filters:
+                - RewritePath=/startups/(?<segment>.*), /${segment}
+
+            - id: investment-docs
+              uri: lb://INVESTMENT-SERVICE
+              predicates:
+                - Path=/investments/v3/api-docs/**
+              filters:
+                - RewritePath=/investments/(?<segment>.*), /${segment}
+
+            - id: team-docs
+              uri: lb://TEAM-SERVICE
+              predicates:
+                - Path=/teams/v3/api-docs/**
+              filters:
+                - RewritePath=/teams/(?<segment>.*), /${segment}
+
+            - id: notification-docs
+              uri: lb://NOTIFICATION-SERVICE
+              predicates:
+                - Path=/notifications/v3/api-docs/**
+              filters:
+                - RewritePath=/notifications/(?<segment>.*), /${segment}
+
+            # -------- SERVICE ROUTES --------
+            - id: auth-service-auth
+              uri: lb://AUTH-SERVICE
+              predicates:
+                - Path=/auth/**
+
+            - id: auth-service-test
+              uri: lb://AUTH-SERVICE
+              predicates:
+                - Path=/test/**
+
+            - id: user-service
+              uri: lb://USER-SERVICE
+              predicates:
+                - Path=/users/**
+
+            - id: startup-service
+              uri: lb://STARTUP-SERVICE
+              predicates:
+                - Path=/startups/**
+
+            - id: investment-service
+              uri: lb://INVESTMENT-SERVICE
+              predicates:
+                - Path=/investments/**
+
+            - id: team-service
+              uri: lb://TEAM-SERVICE
+              predicates:
+                - Path=/teams/**
+
+            - id: notification-service
+              uri: lb://NOTIFICATION-SERVICE
+              predicates:
+                - Path=/notifications/**
+
+          # ✅ FORWARDED HEADERS
           forwarded:
             enabled: true
 
-            
-              
 
 server:
   port: 8080
   forward-headers-strategy: framework
 
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+
 
 resilience4j:
   circuitbreaker:
@@ -119,6 +131,8 @@ resilience4j:
         minimum-number-of-calls: 5
         wait-duration-in-open-state: 10s
         sliding-window-size: 10
+
+
 management:
   endpoints:
     web:
@@ -129,9 +143,11 @@ management:
     sampling:
       probability: 1.0
 
+
 zipkin:
   tracing:
     endpoint: http://localhost:9411/api/v2/spans
+
 
 springdoc:
   swagger-ui:
